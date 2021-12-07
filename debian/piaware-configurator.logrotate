@@ -1,0 +1,10 @@
+/var/log/piaware-configurator.log
+{
+	rotate 4
+	daily
+	missingok
+	notifempty
+	postrotate
+		invoke-rc.d rsyslog rotate >/dev/null 2>&1 || true
+	endscript
+}

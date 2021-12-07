@@ -1,0 +1,25 @@
+#!/usr/bin/python3
+
+# Script to periodically scan for available wifi networks and save to a file. The intended use is for PiAware wifi setup via BLE.
+import subprocess
+import time
+import sys
+
+while True:
+    cmd = ["sudo", "iwlist", "wlan0", "scan"]
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    wifi_network_results = proc.stdout.read().decode('utf-8')
+
+    if "Device or resource busy" in wifi_network_results or "No scan results" in wifi_network_results or "Resource temporarily unavailable" in wifi_network_results:
+        # Retry scan
+        time.sleep(5)
+        continue
+
+    try:
+        with open('/var/run/wifi-scan/available_wifi_networks', 'w') as file_object:
+            file_object.write(wifi_network_results)
+    except IOError as e:
+        print(f'Error writing to available_wifi_networks file:: {e}')
+
+    sys.stdout.flush()
+    time.sleep(60)
