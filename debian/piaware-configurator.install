@@ -1,3 +1,3 @@
-app/* /var/www/piaware_configurator/
+piaware-configurator/* /var/www/piaware_configurator/
 etc/piaware-configurator
 debian/rsyslog/piaware-configurator.conf etc/rsyslog.d/
