@@ -42,11 +42,6 @@ invoke_systemctl_noblock() {
 
 case "$1" in
     configure)
-        if ! getent group piaware >/dev/null
-        then
-            addgroup --system piaware
-        fi
-
         if ! getent passwd piaware-configurator >/dev/null
         then
             adduser --system --no-create-home --quiet piaware-configurator
