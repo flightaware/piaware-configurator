@@ -114,7 +114,7 @@ def get_adsb_site_number(status_json):
         return site_id
 
     except Exception:
-        current_app.logger.error(f'Error retrieving Site ID from status.json')
+        current_app.logger.debug(f'Could not retrieve Site ID from status.json. May not exist yet.')
 
     return ""
 
