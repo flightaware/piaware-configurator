@@ -1,0 +1,8 @@
+# This file enables sudo access to allow piaware-configurator to run specific commands
+# as root. It should be installed as /etc/sudoers.d/piaware-configurator
+
+# Allow piaware-configurator to update piaware-config settings
+piaware-configurator ALL = NOPASSWD: /usr/lib/piaware_packages/helpers/update-piaware-config
+
+# Allow piaware-configurator to restart network
+piaware-configurator ALL = NOPASSWD: /usr/bin/piaware-restart-network

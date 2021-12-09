@@ -198,8 +198,7 @@ def handle_set_wifi_config_request(config_request):
             set_piaware_config(config, value)
 
         current_app.logger.info(f'Restarting network...')
-        cmd = ["sudo", "piaware-restart-network"]
-        _ = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        tohil.eval('::fa_sudo::exec_as -root -- /usr/bin/piaware-restart-network')
 
         json_response, status_code = {"success": True}, HTTPStatus.OK
     except KeyError:

@@ -1,3 +1,4 @@
 piaware-configurator/* /var/www/piaware_configurator/
 etc/piaware-configurator
 debian/rsyslog/piaware-configurator.conf etc/rsyslog.d/
+sudoers/piaware-configurator /etc/sudoers.d/

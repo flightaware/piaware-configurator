@@ -3,7 +3,7 @@ Description=Flask application to configure piaware settings run with Gunicorn
 After=network.target
 
 [Service]
-User=pi
+User=piaware-configurator
 Group=www-data
 WorkingDirectory=/var/www/piaware_configurator/
 ExecStart=/usr/bin/gunicorn3 --config /etc/piaware-configurator/piaware-configurator.conf.py wsgi:app
