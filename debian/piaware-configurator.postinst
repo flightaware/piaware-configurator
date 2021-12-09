@@ -49,7 +49,7 @@ case "$1" in
 
         if ! getent passwd piaware-configurator >/dev/null
         then
-            adduser --system --no-create-home --quiet --ingroup piaware piaware-configurator
+            adduser --system --no-create-home --quiet piaware-configurator
         fi
 
         echo "Restarting piaware-configurator server"
