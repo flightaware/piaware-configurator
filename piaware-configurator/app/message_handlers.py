@@ -197,6 +197,10 @@ def handle_set_wifi_config_request(config_request):
         for config, value in wifi_credentials.items():
             set_piaware_config(config, value)
 
+        if "requestor" in config_request and config_request["requestor"] == "piaware-ble-connect":
+           current_app.logger.info(f'Setting WiFi configuration over Bluetooth. Setting allow-ble-setup to "yes".')
+           set_piaware_config("allow-ble-setup", "yes")
+
         current_app.logger.info(f'Restarting network...')
         tohil.eval('::fa_sudo::popen_as -root -- /usr/bin/piaware-restart-network')
 
