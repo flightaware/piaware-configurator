@@ -25,7 +25,7 @@ def get_wifi_networks(interface='wlan0'):
     """
     wifi_network_results = ""
     try:
-        with open ('/var/run/wifi-scan/available_wifi_networks') as f:
+        with open ('/var/run/piaware-configurator/available_wifi_networks') as f:
             wifi_network_results = f.read()
     except Exception as e:
         current_app.logger.error(f'Error getting available wifi networks: {e}')
