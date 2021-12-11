@@ -1,0 +1,16 @@
+[Unit]
+Description=Periodic scan for available wifi networks to be used by piaware-configurator
+After=network.target
+Requires=network.target
+
+[Service]
+User=piaware-configurator
+Type=simple
+RuntimeDirectory=piaware-configurator
+RuntimeDirectoryMode=0755
+ExecStart=/usr/bin/piaware-wifi-scan
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=network.target

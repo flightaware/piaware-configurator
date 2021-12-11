@@ -16,7 +16,7 @@ while True:
         continue
 
     try:
-        with open('/var/run/wifi-scan/available_wifi_networks', 'w') as file_object:
+        with open('/var/run/piaware-configurator/available_wifi_networks', 'w') as file_object:
             file_object.write(wifi_network_results)
     except IOError as e:
         print(f'Error writing to available_wifi_networks file:: {e}')
