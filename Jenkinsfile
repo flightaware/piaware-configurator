@@ -26,7 +26,7 @@ node(label: 'raspberrypi') {
     }
 
     stage("Test install on ${dist}") {
-        sh "BRANCH=${env.BRANCH_NAME} /build/pi-builder/scripts/validate-packages.sh ${dist} ${resultsdir}/piaware-configurator_*.deb"
+        sh "BRANCH=${env.BRANCH_NAME} /build/pi-builder/scripts/validate-packages.sh ${dist} ${resultsdir}/piaware-wifi-scan_*.deb ${resultsdir}/piaware-configurator_*.deb"
     }
 
     stage("Deployment to internal repository") {
