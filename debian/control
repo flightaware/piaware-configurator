@@ -12,7 +12,6 @@ Description: Helper script to do periodic scan of available wifi networks
 
 Package: piaware-configurator
 Architecture: all
-Depends: ${python3:Depends}, ${misc:Depends}, python3-flask, gunicorn3, python3-tohil,
- piaware-wifi-scan
+Depends: ${python3:Depends}, ${misc:Depends}, piaware-wifi-scan (= ${binary:Version}), python3-flask, gunicorn3, python3-tohil
 Description: Python 3 Flask application to configure piaware settings
  over HTTP
