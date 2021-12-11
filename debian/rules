@@ -8,4 +8,4 @@
 
 override_dh_installinit:
 	dh_installinit --name=piaware-configurator
-	dh_installinit --name=wifi-scan
+	dh_installinit --name=piaware-wifi-scan
