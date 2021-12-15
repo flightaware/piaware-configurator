@@ -35,7 +35,13 @@ def handle_read_config_request(config_request):
         json_response, status_code = {"success": False, "error": "Missing request_payload field"}, HTTPStatus.BAD_REQUEST
     except TypeError:
         json_response, status_code = {"success": False, "error": "Request_payload must be a list of settings to read"}, HTTPStatus.BAD_REQUEST
-    except PiAwareConfigReadWriteException as e:
+    except PiAwareConfigPermissionException as e:
+        error = f"Reading {e.setting} is not allowed"
+        json_response, status_code = {"success": False, "error": error}, HTTPStatus.OK
+    except PiAwareConfigAsciiStringException as e:
+        error = f"Badly formatted setting"
+        json_response, status_code = {"success": False, "error": error}, HTTPStatus.OK
+    except PiAwareConfigException as e:
         error = f"Server error occurred reading config setting: {e.setting}"
         json_response, status_code = {"success": False, "error": error}, HTTPStatus.OK
 
@@ -69,7 +75,13 @@ def handle_write_config_request(config_request):
         json_response, status_code = {"success": False, "error": "Missing request_payload field"}, HTTPStatus.BAD_REQUEST
     except TypeError:
         json_response, status_code = {"success": False, "error": "request_payload must be a dict"}, HTTPStatus.BAD_REQUEST
-    except PiAwareConfigReadWriteException as e:
+    except PiAwareConfigPermissionException as e:
+        error = f"Setting {e.setting} is not allowed"
+        json_response, status_code = {"success": False, "error": error}, HTTPStatus.OK
+    except PiAwareConfigAsciiStringException as e:
+        error = f"Badly formatted setting"
+        json_response, status_code = {"success": False, "error": error}, HTTPStatus.OK
+    except PiAwareConfigException as e:
         error = f"Server error occurred writing config setting: {e.setting}"
         json_response, status_code = {"success": False, "error": error}, HTTPStatus.OK
 

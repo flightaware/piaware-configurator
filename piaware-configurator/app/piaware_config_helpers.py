@@ -2,16 +2,32 @@ from flask import current_app
 import tohil
 import json
 
+piaware_config_read_whitelist = ["allow-ble-setup", "wireless-network", "wireless-ssid", "wireless-password", "wireless-country"]
+piaware_config_write_whitelist = ["allow-ble-setup", "wireless-network", "wireless-ssid", "wireless-password", "wireless_country"]
 
-class PiAwareConfigReadWriteException(Exception):
+class PiAwareConfigException(Exception):
     def __init__(self, setting):
         self.setting = setting
 
+class PiAwareConfigPermissionException(PiAwareConfigException):
+    def __init__(self, setting):
+        super().__init__(setting)
+        current_app.logger.error(f'Invalid permissions to read {setting}')
+
+class PiAwareConfigAsciiStringException(PiAwareConfigException):
+    def __init__(self, setting):
+        super().__init__(setting)
+        current_app.logger.error(f'Not a valid ASCII string')
 
 def get_piaware_config(setting):
     """ Getter function for piaware-config settings
 
     """
+    if not setting.isascii():
+       raise PiAwareConfigAsciiStringException(setting)
+
+    if setting not in piaware_config_read_whitelist:
+       raise PiAwareConfigPermissionException(setting)
 
     try:
         tohil.eval('piawareConfig read_config')
@@ -27,6 +43,11 @@ def set_piaware_config(setting, value):
     """ Setter function for piaware-config settings
 
     """
+    if not setting.isascii():
+       raise PiAwareConfigAsciiStringException(setting)
+
+    if setting not in piaware_config_write_whitelist:
+        raise PiAwareConfigPermissionException(setting)
 
     try:
         tohil.eval('piawareConfig read_config')
