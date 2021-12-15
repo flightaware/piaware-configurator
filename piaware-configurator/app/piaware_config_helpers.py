@@ -131,6 +131,6 @@ def get_unique_feederid():
             feeder_id = f.read().strip()
             return feeder_id
     except Exception:
-        current_app.logger.error(f'Error retrieving Unique Feeder ID')
+        current_app.logger.debug(f'Error retrieving Unique Feeder ID')
 
     return ""
