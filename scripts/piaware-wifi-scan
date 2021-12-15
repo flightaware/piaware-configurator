@@ -8,7 +8,12 @@ import sys
 while True:
     cmd = ["sudo", "iwlist", "wlan0", "scan"]
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    wifi_network_results = proc.stdout.read().decode('utf-8')
+
+    try:
+       wifi_network_results = proc.communicate(timeout=10)[0].decode('utf-8').strip()
+    except subprocess.TimeoutExpired:
+       proc.kill()
+       continue
 
     if "Device or resource busy" in wifi_network_results or "No scan results" in wifi_network_results or "Resource temporarily unavailable" in wifi_network_results:
         # Retry scan
@@ -20,6 +25,8 @@ while True:
             file_object.write(wifi_network_results)
     except IOError as e:
         print(f'Error writing to available_wifi_networks file:: {e}')
+        time.sleep(5)
+        continue
 
     sys.stdout.flush()
     time.sleep(60)
