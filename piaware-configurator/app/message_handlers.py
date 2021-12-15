@@ -97,7 +97,7 @@ def handle_get_device_state_request():
         wireless_password_set = False if get_piaware_config('wireless-password') == "" else True
 
         # Check route to FlightAware and IP address via fa_sysinfo pakage and tohil
-        route_to_flightaware, ip_address = get_network_state_and_ip()
+        route_to_flightaware, ip_address, interface = get_network_state_and_ip()
         is_connected_to_internet = True if route_to_flightaware and not ip_address.startswith("169.254") else False
 
         unique_feeder_id = get_unique_feederid()
@@ -118,7 +118,8 @@ def handle_get_device_state_request():
                         'is_receiver_claimed': is_claimed,
                         'is_connected_to_FA': is_connected_to_FA,
                         'feeder_id': unique_feeder_id,
-                        'site_id': site_id
+                        'site_id': site_id,
+                        'network_interface': interface
                         }
         status_code = HTTPStatus.OK
 

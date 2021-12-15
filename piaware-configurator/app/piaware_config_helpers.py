@@ -48,13 +48,15 @@ def get_network_state_and_ip():
         if route:
             route_to_flightaware = True
             ip_address = tohil.getvar('ip', to=str)
+            interface = tohil.getvar('iface', to=str)
         else:
             route_to_flightaware = False
             ip_address = ""
+            interface = ""
     except Exception:
         raise
 
-    return route_to_flightaware, ip_address
+    return route_to_flightaware, ip_address, interface
 
 
 def is_receiver_claimed(status_json):
