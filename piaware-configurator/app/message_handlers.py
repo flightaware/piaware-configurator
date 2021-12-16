@@ -135,7 +135,7 @@ def handle_get_device_state_request():
                         }
         status_code = HTTPStatus.OK
 
-    except PiAwareConfigReadWriteException as e:
+    except PiAwareConfigException as e:
         error = f"Server error occurred reading wireless setting: {e.setting}"
         json_response, status_code = {"success": False, "error": error}, HTTPStatus.OK
     except Exception as e:
