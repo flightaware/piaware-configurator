@@ -34,7 +34,7 @@ def get_piaware_config(setting):
         value = str(tohil.call('piawareConfig', 'get', setting))
     except Exception:
         current_app.logger.error(f'Error reading {setting}. Make sure {setting} is a valid piaware-config option.')
-        raise PiAwareConfigReadWriteException(setting)
+        raise PiAwareConfigException(setting)
 
     return value
 
@@ -55,7 +55,7 @@ def set_piaware_config(setting, value):
         tohil.eval('piawareConfig write_config')
     except Exception:
         current_app.logger.error(f'Error setting {setting} to {value}. Make sure {setting} is a valid piaware-config option.')
-        raise PiAwareConfigReadWriteException(setting)
+        raise PiAwareConfigException(setting)
 
     return
 
