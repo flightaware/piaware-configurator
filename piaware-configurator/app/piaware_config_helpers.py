@@ -2,7 +2,7 @@ from flask import current_app
 import tohil
 import json
 
-piaware_config_read_whitelist = ["allow-ble-setup", "wireless-network", "wireless-ssid", "wireless-password", "wireless-country"]
+piaware_config_read_whitelist = ["allow-ble-setup", "wireless-network", "wireless-ssid", "wireless-country"]
 piaware_config_write_whitelist = ["allow-ble-setup", "wireless-network", "wireless-ssid", "wireless-password", "wireless-country"]
 
 class PiAwareConfigException(Exception):

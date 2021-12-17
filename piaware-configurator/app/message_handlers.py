@@ -106,7 +106,9 @@ def handle_get_device_state_request():
         # read piaware-config settings for wifi credentials
         wireless_ssid = get_piaware_config('wireless-ssid')
         wireless_country = get_piaware_config('wireless-country')
-        wireless_password_set = False if get_piaware_config('wireless-password') == "" else True
+        # Hardcoded for now since we removed read permissions for wireless-password. Unused by clients but
+        # still need the key present for this API version
+        wireless_password_set = True
 
         # Check route to FlightAware and IP address via fa_sysinfo pakage and tohil
         route_to_flightaware, ip_address, interface = get_network_state_and_ip()
