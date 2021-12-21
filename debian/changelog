@@ -1,4 +1,4 @@
-piaware-configurator (7.0) UNRELEASED; urgency=medium
+piaware-configurator (7.0) stable; urgency=medium
 
   * First release of internal Flask web server for PiAware
   * Handles requests from piaware-ble-connect to configure WiFi over BLE
