@@ -1,3 +1,9 @@
+piaware-configurator (8.0~dev) UNRELEASED; urgency=medium
+
+  * In development
+
+ -- Eric Tran  <eric.tran@flightaware.com>  Tue, 02 Aug 2022 10:23:30 -0600
+
 piaware-configurator (7.2) stable; urgency=medium
 
   * No change release for 7.2
