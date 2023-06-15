@@ -17,6 +17,7 @@ def before_first_request_func():
 
     """
     tohil.eval('package require fa_piaware_config')
+    tohil.eval('catch {package require fa_flightfeeder_config}')
     tohil.eval('package require fa_sudo')
     tohil.eval('package require fa_sysinfo')
     tohil.eval('::fa_piaware_config::new_combined_config piawareConfig')
