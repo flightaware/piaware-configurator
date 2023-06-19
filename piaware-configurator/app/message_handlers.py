@@ -5,7 +5,7 @@ import subprocess
 from .piaware_config_helpers import *
 from .wifi_helpers import get_wifi_networks, scan_wifi_networks, parse_wifi_networks
 
-API_VERSION = '1.0.0'
+API_VERSION = '2.0.0'
 
 
 def handle_read_config_request(config_request):
@@ -93,6 +93,18 @@ def handle_get_device_info_request():
 
     """
     json_response = {'api_version': API_VERSION}
+    try:
+        image_type = get_piaware_config('image-type')
+        json_response['image_type'] = image_type
+        if image_type.startswith('flightfeeder'):
+            flightfeeder_serial_number = get_piaware_config('flightfeeder-serial')
+            json_response['flightfeeder_serial'] = flightfeeder_serial_number
+        json_response['success'] = True
+    except Exception as e:
+        current_app.logger.error(f'Error getting device info: {e}')
+        json_response['success'] = False
+        json_response['error'] = "Error obtaining full device information"
+
     status_code = HTTPStatus.OK
 
     return json_response, status_code
