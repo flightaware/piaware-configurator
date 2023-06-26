@@ -1,5 +1,6 @@
 from flask import current_app
 from http import HTTPStatus
+import os
 import subprocess
 
 from .piaware_config_helpers import *
@@ -128,13 +129,25 @@ def handle_get_device_state_request():
 
         unique_feeder_id = get_unique_feederid()
 
-        with open('/var/run/piaware/status.json') as f:
-            status_json = json.load(f)
+        is_claimed = None
+        is_connected_to_FA = None
+        site_id = None
+        device_type = None
 
-        # read info from local files (status.json & feeder_id)
-        is_claimed = True if unique_feeder_id != "" and is_receiver_claimed(status_json) else False
-        is_connected_to_FA = is_connected_to_flightaware(status_json)
-        site_id = get_adsb_site_number(status_json)
+        if os.path.exists('/var/run/flightfeeder/status.json'):
+            with open('/var/run/flightfeeder/status.json') as f:
+                status_json = json.load(f)
+            site_id = get_adsb_site_number(status_json)
+            is_connected_to_FA = is_connected_to_flightaware(status_json)
+            device_type = 'flightfeeder'
+        elif os.path.exists('/var/run/piaware/status.json'):
+            with open('/var/run/piaware/status.json') as f:
+                status_json = json.load(f)
+            # read info from local files (status.json & feeder_id)
+            is_claimed = True if unique_feeder_id != "" and is_receiver_claimed(status_json) else False
+            is_connected_to_FA = is_connected_to_flightaware(status_json)
+            site_id = get_adsb_site_number(status_json)
+            device_type = 'piaware'
 
         json_response = {'wireless-country': wireless_country,
                         'wireless-ssid': wireless_ssid,
@@ -145,7 +158,8 @@ def handle_get_device_state_request():
                         'is_connected_to_FA': is_connected_to_FA,
                         'feeder_id': unique_feeder_id,
                         'site_id': site_id,
-                        'network_interface': interface
+                        'network_interface': interface,
+                        'device_type': device_type
                         }
         status_code = HTTPStatus.OK
 
