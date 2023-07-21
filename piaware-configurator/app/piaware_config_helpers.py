@@ -2,7 +2,7 @@ from flask import current_app
 import tohil
 import json
 
-piaware_config_read_whitelist = ["allow-ble-setup", "wireless-network", "wireless-ssid", "wireless-country", "image-type", "flightfeeder-serial"]
+piaware_config_read_whitelist = ["allow-ble-setup", "wireless-network", "wireless-ssid", "wireless-country", "image-type", "flightfeeder-serial", "rtlsdr-gain", "uat-sdr-gain"]
 piaware_config_write_whitelist = ["allow-ble-setup", "wireless-network", "wireless-ssid", "wireless-password", "wireless-country"]
 
 class PiAwareConfigException(Exception):
@@ -153,5 +153,18 @@ def get_unique_feederid():
             return feeder_id
     except Exception:
         current_app.logger.debug(f'Error retrieving Unique Feeder ID')
+
+    return ""
+
+def get_device_location():
+    """ Opens and reads /var/cache/piaware/location for the device location
+        Returns empty string if not found
+    """
+    try:
+        with open('/var/cache/piaware/location') as f:
+            data = f.readlines()
+        return (data[0].strip(), data[1].strip()) if len(data) == 2 else ""
+    except Exception:
+        current_app.logger.debug(f"Error retrieving device location")
 
     return ""

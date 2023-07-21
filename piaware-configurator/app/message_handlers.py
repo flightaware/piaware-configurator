@@ -127,6 +127,7 @@ def handle_get_device_state_request():
         route_to_flightaware, ip_address, interface = get_network_state_and_ip()
         is_connected_to_internet = True if route_to_flightaware and not ip_address.startswith("169.254") else False
 
+        device_location = get_device_location()
         unique_feeder_id = get_unique_feederid()
 
         is_claimed = False
@@ -157,7 +158,8 @@ def handle_get_device_state_request():
                         'is_connected_to_FA': is_connected_to_FA,
                         'feeder_id': unique_feeder_id,
                         'site_id': site_id,
-                        'network_interface': interface
+                        'network_interface': interface,
+                        'device_location': device_location
                         }
         status_code = HTTPStatus.OK
 
