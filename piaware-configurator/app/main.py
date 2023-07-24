@@ -103,6 +103,8 @@ def process_json(json_payload):
         json_response, status_code = message_handlers.handle_get_device_info_request()
     elif request == 'get_device_state':
         json_response, status_code = message_handlers.handle_get_device_state_request()
+    elif request == 'get_network_info':
+        json_response, status_code = message_handlers.handle_get_network_info()
     elif request == 'get_wifi_networks':
         json_response, status_code = message_handlers.handle_get_wifi_networks_request()
     elif request == 'set_wifi_config':

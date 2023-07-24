@@ -1,5 +1,6 @@
 from flask import current_app
 from http import HTTPStatus
+import json
 import os
 import subprocess
 
@@ -254,5 +255,64 @@ def handle_set_wifi_config_request(config_request):
         json_response, status_code = {"success": False, "error": "Error restarting network"}, HTTPStatus.OK
     except Exception:
         json_response, status_code = {"success": False, "error": "Server error writing config setting"}, HTTPStatus.OK
+
+    return json_response, status_code
+
+def handle_get_network_info():
+    """ Returns current network status and configuration
+
+    """
+    try:
+        # wireless network piaware-config settings
+        wireless_network = get_piaware_config('wireless-network')
+        wireless_type = get_piaware_config('wireless-type')
+        wireless_address = get_piaware_config('wireless-address')
+        wireless_netmask = get_piaware_config('wireless-netmask')
+        wireless_gateway = get_piaware_config('wireless-gateway')
+        wireless_broadcast = get_piaware_config('wireless-broadcast')
+        wireless_nameservers = get_piaware_config('wireless-nameservers')
+        wireless_country = get_piaware_config('wireless-country')
+        wireless_ssid = get_piaware_config('wireless-ssid')
+
+        # wired network piaware-config settings
+        wired_network = get_piaware_config('wired-network')
+        wired_type = get_piaware_config('wired-type')
+        wired_address = get_piaware_config('wired-address')
+        wired_netmask = get_piaware_config('wired-netmask')
+        wired_gateway = get_piaware_config('wired-gateway')
+        wired_broadcast = get_piaware_config('wired-broadcast')
+        wired_nameservers = get_piaware_config('wired-nameservers')
+
+        # IP address
+        eth0_ipaddress = tohil.eval('::fa_sysinfo::interface_ip_address eth0', to=str)
+        wlan_ipaddress = tohil.eval('::fa_sysinfo::interface_ip_address wlan0', to=str)
+
+        json_response = {'wireless-network': wireless_network,
+                        'wireless-type': wireless_type,
+                        'wireless-address': wireless_address,
+                        'wireless-netmask': wireless_netmask,
+                        'wireless-gateway': wireless_gateway,
+                        'wireless-broadcast': wireless_broadcast,
+                        'wireless-nameservers': wireless_nameservers,
+                        'wireless-country': wireless_country,
+                        'wireless-ssid': wireless_ssid,
+                        'wlan-ipaddress': wlan_ipaddress,
+                        'wired-network': wired_network,
+                        'wired-type': wired_type,
+                        'wired-address': wired_address,
+                        'wired-netmask': wired_netmask,
+                        'wired-gateway': wired_gateway,
+                        'wired-broadcast': wired_broadcast,
+                        'wired-nameservers': wired_nameservers,
+                        'eth0-ipaddress': eth0_ipaddress
+                        }
+
+        status_code = HTTPStatus.OK
+    except PiAwareConfigException as e:
+        error = f"Server error occurred reading wireless setting: {e.setting}"
+        json_response, status_code = {"success": False, "error": error}, HTTPStatus.OK
+    except Exception as e:
+        current_app.logger.error(f'Error getting device state: {e}')
+        json_response, status_code = {"success": False, "error": "Server error occurred retrieving device settings"}, HTTPStatus.OK
 
     return json_response, status_code
