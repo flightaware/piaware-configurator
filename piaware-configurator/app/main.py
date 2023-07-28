@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, make_response, abort
+from flask import Flask, request, jsonify, make_response, abort, send_file
 from http import HTTPStatus
 import logging
 
@@ -36,6 +36,29 @@ def configurator():
 
     return response
 
+@app.route('/piaware/status', methods=["GET"])
+def piaware_status():
+    """Endpoint to read piaware status.json if it exists
+
+    """
+
+    file_path = "/var/run/piaware/status.json"
+    try:
+        return send_file(file_path, mimetype='application/json')
+    except FileNotFoundError:
+        abort(404)
+
+@app.route('/flightfeeder/status', methods=["GET"])
+def flightfeeder_status():
+    """Endpoint to read flightfeeder status.json if it exists
+
+    """
+
+    file_path = "/var/run/flightfeeder/status.json"
+    try:
+        return send_file(file_path, mimetype='application/json')
+    except FileNotFoundError:
+        abort(404)
 
 def validate_json(request):
     """Validate request to ensure it is json
