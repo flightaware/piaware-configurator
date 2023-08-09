@@ -97,7 +97,8 @@ def handle_disconnect():
     app.logger.info(f'Client disconnected')
 
 def stream_piaware_log_file():
-    ''' Stream piaware.log by periodically reading contents and emitting via web socket
+    ''' Streams piaware.log by periodically reading the file and emitting the data via a web socket.
+        This will periodically seek to EOF to determine if there are new lines to be read.
 
     '''
     app.logger.debug("Spawned thread to follow piaware logs")
@@ -114,12 +115,17 @@ def stream_piaware_log_file():
                 f.seek(0,2)
                 end_pos = f.tell()
 
+                # Skip ahead for initial read to avoid reading the entire file
+                if curr_pos == 0:
+                    curr_pos = max(curr_pos, (end_pos - 200*160))
+
                 # If it's greater than our last current position, emit all the new lines up to end of file
                 # and update the current_position
                 if end_pos > curr_pos:
                     f.seek(curr_pos)
                     for line in f:
                         socketio.emit('log_data', line.decode('utf-8'))
+                        socketio.sleep(0)
                     curr_pos = f.tell()
 
             socketio.sleep(3)
