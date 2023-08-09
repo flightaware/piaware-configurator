@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, make_response, abort, send_file
+from flask_socketio import SocketIO
 from http import HTTPStatus
 import logging
 
@@ -10,6 +11,9 @@ APP_NAME = 'piaware-configurator'
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 
+socketio = SocketIO(app, cors_allowed_origins="*")
+log_thread=None
+stop_thread = False
 
 @app.before_first_request
 def before_first_request_func():
@@ -59,6 +63,63 @@ def flightfeeder_status():
         return send_file(file_path, mimetype='application/json')
     except FileNotFoundError:
         abort(404)
+
+@socketio.on('connect')
+def handle_connect():
+    ''' Socketio connect event
+
+    '''
+    app.logger.info(f'Accepted client connection')
+
+    # Start a thread that will stream piaware.log
+    global log_thread
+    global stop_thread
+    stop_thread = False
+    if log_thread is None:
+        log_thread = socketio.start_background_task(stream_piaware_log_file)
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    ''' Socketio disconnect event
+
+    '''
+    global stop_thread
+    global log_thread
+    log_thread = None
+    stop_thread = True
+    app.logger.info(f'Client disconnected')
+
+def stream_piaware_log_file():
+    ''' Stream piaware.log by periodically reading contents and emitting via web socket
+
+    '''
+    app.logger.debug("Spawned thread to follow piaware logs")
+    global stop_thread
+    curr_pos = 0
+    try:
+        while True:
+            if stop_thread:
+                break
+
+            # Open file for reading
+            with open('/var/log/piaware.log', 'rb') as f:
+                # Seek EOF position
+                f.seek(0,2)
+                end_pos = f.tell()
+
+                # If it's greater than our last current position, emit all the new lines up to end of file
+                # and update the current_position
+                if end_pos > curr_pos:
+                    f.seek(curr_pos)
+                    for line in f:
+                        socketio.emit('log_data', line.decode('utf-8'))
+                    curr_pos = f.tell()
+
+            socketio.sleep(3)
+    except:
+        app.logger.error("Error reading piaware.log")
+        socketio.emit('log_data', "Error reading piaware.log...")
+
 
 def validate_json(request):
     """Validate request to ensure it is json
