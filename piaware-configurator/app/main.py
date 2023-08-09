@@ -27,6 +27,11 @@ def before_first_request_func():
     tohil.eval('::fa_piaware_config::new_combined_config piawareConfig')
 
 
+@app.errorhandler(404)
+def not_found_error(error):
+    response = {"error": "Resource not found"}
+    return jsonify(response), 404
+
 @app.route('/configurator/', methods=["POST"])
 def configurator():
     """Endpoint to serve POST requests. Only accepts content-type application/json.
@@ -50,7 +55,8 @@ def piaware_status():
     try:
         return send_file(file_path, mimetype='application/json')
     except FileNotFoundError:
-        abort(404)
+        response = {'error': 'Could not read PiAware status.json'}
+        return make_response(jsonify({response}), 404)
 
 @app.route('/flightfeeder/status', methods=["GET"])
 def flightfeeder_status():
@@ -62,7 +68,8 @@ def flightfeeder_status():
     try:
         return send_file(file_path, mimetype='application/json')
     except FileNotFoundError:
-        abort(404)
+        response = {'error': 'Could not read FlightFeeder status.json'}
+        return make_response(jsonify({response}), 404)
 
 @socketio.on('connect')
 def handle_connect():
