@@ -115,12 +115,12 @@ def stream_piaware_log_file():
                 f.seek(0,2)
                 end_pos = f.tell()
 
-                # Skip ahead for initial read to avoid reading the entire file
+                # Skip the current position ahead for the initial read to avoid reading the entire file
                 if curr_pos == 0:
                     curr_pos = max(curr_pos, (end_pos - 200*160))
 
-                # If it's greater than our last current position, emit all the new lines up to end of file
-                # and update the current_position
+                # If EOF is greater than our current position, this indicates new log data.
+                # Emit all the new lines up to end of file and update the current_position
                 if end_pos > curr_pos:
                     f.seek(curr_pos)
                     for line in f:
@@ -128,6 +128,7 @@ def stream_piaware_log_file():
                         socketio.sleep(0)
                     curr_pos = f.tell()
 
+            # Check for new data every 3 seconds
             socketio.sleep(3)
     except:
         app.logger.error("Error reading piaware.log")
