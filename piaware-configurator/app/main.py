@@ -56,7 +56,7 @@ def piaware_status():
         return send_file(file_path, mimetype='application/json')
     except FileNotFoundError:
         response = {'error': 'Could not read PiAware status.json'}
-        return make_response(jsonify({response}), 404)
+        return make_response(jsonify(response), 404)
 
 @app.route('/flightfeeder/status', methods=["GET"])
 def flightfeeder_status():
@@ -69,7 +69,7 @@ def flightfeeder_status():
         return send_file(file_path, mimetype='application/json')
     except FileNotFoundError:
         response = {'error': 'Could not read FlightFeeder status.json'}
-        return make_response(jsonify({response}), 404)
+        return make_response(jsonify(response), 404)
 
 @socketio.on('connect')
 def handle_connect():
