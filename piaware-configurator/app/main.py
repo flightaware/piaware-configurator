@@ -119,12 +119,20 @@ def stream_piaware_log_file():
                 if curr_pos == 0:
                     curr_pos = max(curr_pos, (end_pos - 200*160))
 
+                    # Read forward until next new line in case we land in the middle of a line
+                    f.seek(curr_pos)
+                    while True:
+                        char = f.read(1)
+                        curr_pos += 1
+                        if not char or char == b'\n':
+                            break
+
                 # If EOF is greater than our current position, this indicates new log data.
                 # Emit all the new lines up to end of file and update the current_position
                 if end_pos > curr_pos:
                     f.seek(curr_pos)
                     for line in f:
-                        socketio.emit('log_data', line.decode('utf-8'))
+                        socketio.emit('log_data', line.decode('utf-8', errors="replace"))
                         socketio.sleep(0)
                     curr_pos = f.tell()
 
