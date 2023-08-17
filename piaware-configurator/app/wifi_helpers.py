@@ -1,6 +1,7 @@
 from flask import current_app
 import subprocess
 import re
+import tohil
 
 cell_regex = re.compile(r"^Cell ([\d.]+)")
 ssid_regex = re.compile(r"^ESSID:\"(.*)\"$")
@@ -80,3 +81,9 @@ def parse_wifi_networks(data):
             wifi_network_set.append(network['wireless-ssid'])
 
     return sorted(wifi_networks, key=lambda k: k['signal'])
+
+def get_transfer_rate_statistics():
+    total_tx_bytes = tohil.eval('expr {[::fa_sysinfo::interface_tx_bytes eth0] + [::fa_sysinfo::interface_tx_bytes wlan0]}', to=int)
+    total_rx_bytes = tohil.eval('expr {[::fa_sysinfo::interface_rx_bytes eth0] + [::fa_sysinfo::interface_rx_bytes wlan0]}', to=int)
+
+    return total_tx_bytes, total_rx_bytes

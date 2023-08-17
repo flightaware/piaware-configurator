@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Flask, request, jsonify, make_response, abort, send_file
 from flask_socketio import SocketIO
 from http import HTTPStatus
@@ -5,6 +6,7 @@ import logging
 
 import tohil
 from . import message_handlers
+from . import wifi_helpers
 
 APP_NAME = 'piaware-configurator'
 
@@ -44,6 +46,29 @@ def configurator():
     response = process_json(json_payload)
 
     return response
+
+@app.route('/system/status', methods=["GET"])
+def system_status():
+    response = dict()
+
+    try:
+        utcnow = datetime.utcnow()
+        system_time_utc_str = f"{utcnow.strftime('%H:%M:%S')} UTC"
+    except:
+        app.logger.error('Error retrieving system time')
+        system_time_utc_str = None
+
+    try:
+        total_tx_bytes, total_rx_bytes = wifi_helpers.get_transfer_rate_statistics()
+    except:
+        app.logger.error('Error retrieving networking transfer rate statistics')
+        total_tx_bytes = total_rx_bytes = None
+
+    response['system_time'] = system_time_utc_str
+    response['total_tx_bytes'] = total_tx_bytes
+    response['total_rx_bytes'] = total_rx_bytes
+
+    return make_response(jsonify(response), 200)
 
 @app.route('/piaware/status', methods=["GET"])
 def piaware_status():
