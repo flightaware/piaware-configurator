@@ -53,7 +53,7 @@ def system_status():
 
     try:
         utcnow = datetime.utcnow()
-        system_time_utc_str = f"{utcnow.strftime('%H:%M:%S')} UTC"
+        system_time_utc_str = f"{utcnow.strftime('%H:%M')} UTC"
     except:
         app.logger.error('Error retrieving system time')
         system_time_utc_str = None
