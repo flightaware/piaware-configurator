@@ -283,9 +283,12 @@ def handle_get_network_info():
         wired_broadcast = get_piaware_config('wired-broadcast')
         wired_nameservers = get_piaware_config('wired-nameservers')
 
-        # IP address
+        # IP address and ethernet/wifi state
         eth0_ipaddress = tohil.eval('::fa_sysinfo::interface_ip_address eth0', to=str)
-        wlan_ipaddress = tohil.eval('::fa_sysinfo::interface_ip_address wlan0', to=str)
+        wlan_interface = tohil.eval('::fa_sysinfo::wireless_interface', to=str)
+        wlan_ipaddress = tohil.eval(f'::fa_sysinfo::interface_ip_address {wlan_interface}', to=str)
+        ethernet_state = tohil.eval('::fa_sysinfo::interface_state eth0', to=str)
+        wifi_state = tohil.eval(f'::fa_sysinfo::interface_state {wlan_interface}', to=str)
 
         json_response = {'wireless-network': wireless_network,
                         'wireless-type': wireless_type,
@@ -304,7 +307,9 @@ def handle_get_network_info():
                         'wired-gateway': wired_gateway,
                         'wired-broadcast': wired_broadcast,
                         'wired-nameservers': wired_nameservers,
-                        'eth0-ipaddress': eth0_ipaddress
+                        'eth0-ipaddress': eth0_ipaddress,
+                        'wifi-state': wifi_state,
+                        'ethernet-state': ethernet_state
                         }
 
         status_code = HTTPStatus.OK
