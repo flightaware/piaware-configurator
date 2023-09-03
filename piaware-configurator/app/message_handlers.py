@@ -321,3 +321,15 @@ def handle_get_network_info():
         json_response, status_code = {"success": False, "error": "Server error occurred retrieving device settings"}, HTTPStatus.OK
 
     return json_response, status_code
+
+def handle_restart_receiver_request():
+    current_app.logger.info(f'Restarting receiver...')
+    try:
+        tohil.eval('::fa_sudo::popen_as -root -- /usr/bin/piaware-restart-receiver')
+        json_response, status_code = {"success": True}, HTTPStatus.OK
+    except subprocess.CalledProcessError:
+        json_response, status_code = {"success": False, "error": "Error restarting receiver"}, HTTPStatus.OK
+    except Exception:
+        json_response, status_code = {"success": False, "error": "Server error restarting receiver"}, HTTPStatus.OK
+
+    return json_response, status_code

@@ -240,6 +240,8 @@ def process_json(json_payload):
         json_response, status_code = message_handlers.handle_get_wifi_networks_request()
     elif request == 'set_wifi_config':
         json_response, status_code = message_handlers.handle_set_wifi_config_request(json_payload)
+    elif request == 'restart_receiver':
+        json_response, status_code = message_handlers.handle_restart_receiver_request()
     else:
         app.logger.error(f'Unrecognized request: {request}')
         json_response, status_code = {"success": False, "error": "Unsupported request"}, HTTPStatus.BAD_REQUEST

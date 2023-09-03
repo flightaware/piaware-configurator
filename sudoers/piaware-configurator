@@ -7,5 +7,8 @@ piaware-configurator ALL = NOPASSWD: /usr/lib/piaware_packages/helpers/update-pi
 # Allow piaware-configurator to restart network
 piaware-configurator ALL = NOPASSWD: /usr/bin/piaware-restart-network
 
+# allow piaware-configurator to restart receiver
+piaware-configurator ALL = NOPASSWD: /usr/bin/piaware-restart-receiver
+
 # Allow piaware-configurator to search for wifi networks
 piaware-configurator ALL = NOPASSWD: /sbin/iwlist
