@@ -333,3 +333,16 @@ def handle_restart_receiver_request():
         json_response, status_code = {"success": False, "error": "Server error restarting receiver"}, HTTPStatus.OK
 
     return json_response, status_code
+
+
+def handle_restart_network_request():
+    current_app.logger.info(f'Restarting network...')
+    try:
+        tohil.eval('::fa_sudo::popen_as -root -- /usr/bin/piaware-restart-network')
+        json_response, status_code = {"success": True}, HTTPStatus.OK
+    except subprocess.CalledProcessError:
+        json_response, status_code = {"success": False, "error": "Error restarting network"}, HTTPStatus.OK
+    except Exception:
+        json_response, status_code = {"success": False, "error": "Server error restarting network"}, HTTPStatus.OK
+
+    return json_response, status_code

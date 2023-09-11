@@ -6,7 +6,8 @@ piaware_config_read_whitelist = [
     "wireless-network", "wireless-type", "wireless-address", "wireless-ssid", "wireless-netmask", "wireless-gateway", "wireless-country", "wireless-broadcast", "wireless-nameservers",
     "wired-network", "wired-type", "wired-address", "wired-netmask", "wired-gateway", "wired-broadcast", "wired-nameservers"
     ]
-piaware_config_write_whitelist = ["allow-ble-setup", "wireless-network", "wireless-ssid", "wireless-password", "wireless-country", "rtlsdr-gain"]
+piaware_config_write_whitelist = ["allow-ble-setup", "wireless-network", "wireless-type", "wireless-address", "wireless-ssid", "wireless-netmask", "wireless-gateway", "wireless-country", "wireless-broadcast", "wireless-nameservers", "wireless-password",
+    "wired-network", "wired-type", "wired-address", "wired-netmask", "wired-gateway", "wired-broadcast", "wired-nameservers", "rtlsdr-gain"]
 
 class PiAwareConfigException(Exception):
     def __init__(self, setting):
