@@ -346,3 +346,14 @@ def handle_restart_network_request():
         json_response, status_code = {"success": False, "error": "Server error restarting network"}, HTTPStatus.OK
 
     return json_response, status_code
+
+def handle_reboot_request():
+    current_app.logger.info(f'Rebooting device...')
+    try:
+        tohil.eval('::fa_sudo::exec_as -root -- /sbin/shutdown -r now')
+    except subprocess.CalledProcessError:
+        json_response, status_code = {"success": False, "error": "Error rebooting device"}, HTTPStatus.OK
+    except Exception:
+        json_response, status_code = {"success": False, "error": "Server error occurred"}, HTTPStatus.OK
+
+    return json_response, status_code

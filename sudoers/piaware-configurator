@@ -12,3 +12,6 @@ piaware-configurator ALL = NOPASSWD: /usr/bin/piaware-restart-receiver
 
 # Allow piaware-configurator to search for wifi networks
 piaware-configurator ALL = NOPASSWD: /sbin/iwlist
+
+# Allow piaware-configurator to shutdown/reboot/halt the system
+piaware-configurator ALL = NOPASSWD: /sbin/shutdown

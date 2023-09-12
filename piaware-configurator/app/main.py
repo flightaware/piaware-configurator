@@ -244,6 +244,8 @@ def process_json(json_payload):
         json_response, status_code = message_handlers.handle_restart_receiver_request()
     elif request == 'restart_network':
         json_response, status_code = message_handlers.handle_restart_network_request()
+    elif request == 'reboot':
+        json_response, status_code = message_handlers.handle_reboot_request()
     else:
         app.logger.error(f'Unrecognized request: {request}')
         json_response, status_code = {"success": False, "error": "Unsupported request"}, HTTPStatus.BAD_REQUEST
