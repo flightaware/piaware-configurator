@@ -50,36 +50,6 @@ def configurator():
 
     return response
 
-@app.route('/configurator/pending-network-settings', methods=["GET", "POST"])
-def pending_network_settings():
-    """ Endpoint to get and set pending network settings. Currently supported on FlightFeeders.
-
-        These settings are volatile and will be deleted on reboot.
-    """
-    filename = "/run/flightfeeder-volatile-config.txt"
-
-    if request.method == "GET":
-        if os.path.exists(filename):
-            json_payload = validate_json(request)
-            json_response, status_code = message_handlers.handle_read_pending_network_config_request(json_payload)
-        else:
-            json_response = {"success": False, "error": "No pending settings exist"}
-            status_code = 404
-
-    elif request.method == "POST":
-        # If volatile config file doesn't exist, create it
-        if not os.path.exists(filename):
-            cmd = ["sudo", "touch", filename]
-            subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-        # Validate JSON format
-        json_payload = validate_json(request)
-
-        # Validate JSON content
-        json_response, status_code = message_handlers.handle_write_pending_network_config_request(json_payload)
-
-    return make_response(jsonify(json_response), status_code)
-
 @app.route('/system/status', methods=["GET"])
 def system_status():
     response = dict()
@@ -279,6 +249,10 @@ def process_json(json_payload):
         json_response, status_code = message_handlers.handle_restart_network_request()
     elif request == 'reboot':
         json_response, status_code = message_handlers.handle_reboot_request()
+    elif request == 'get_pending_network_config':
+        json_response, status_code = message_handlers.handle_read_pending_network_config_request(json_payload)
+    elif request == 'set_pending_network_config':
+        json_response, status_code = message_handlers.handle_write_pending_network_config_request(json_payload)
     elif request == 'save_pending_network_settings':
         json_response, status_code = message_handlers.handle_save_pending_network_settings()
     else:

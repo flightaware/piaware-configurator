@@ -55,11 +55,17 @@ def handle_read_pending_network_config_request(config_request):
 
         Expected config_request format:
         {
-            "request_payload" : ["wireless-network", "wireless-ssid]
+            "request": "get_pending_network_config",
+            "request_payload" : ["wireless-network", "wireless-ssid"]
         }
 
         request_payload must be a list of config settings to read
     """
+    filename = "/run/flightfeeder-volatile-config.txt"
+
+    if not os.path.exists(filename):
+        return {"success": False, "error": "No pending settings exist"}, 404
+
     try:
         read_settings = config_request['request_payload']
         if type(read_settings) is not list:
@@ -132,11 +138,19 @@ def handle_write_pending_network_config_request(config_request):
 
         Expected config_request format:
         {
+            "request": "set_pending_network_config",
             "request_payload" : {"wireless-ssid": "MyWifiNetwork", "wireless-address": "192.168.0.111"}
         }
 
         request_payload must be a dictionary of key/value configuration setting pairs
     """
+    filename = "/run/flightfeeder-volatile-config.txt"
+
+    # If volatile config file doesn't exist, create it
+    if not os.path.exists(filename):
+        cmd = ["sudo", "touch", filename]
+        subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
     try:
         write_settings = config_request['request_payload']
         if type(write_settings) is not dict:
