@@ -15,3 +15,7 @@ piaware-configurator ALL = NOPASSWD: /sbin/iwlist
 
 # Allow piaware-configurator to shutdown/reboot/halt the system
 piaware-configurator ALL = NOPASSWD: /sbin/shutdown
+
+# Allow piaware-configurator to create and remove pending config files
+piaware-configurator ALL = NOPASSWD: /bin/touch /run/flightfeeder-volatile-config.txt
+piaware-configurator ALL = NOPASSWD: /bin/rm /run/flightfeeder-volatile-config.txt

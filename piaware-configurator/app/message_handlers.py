@@ -5,6 +5,7 @@ import os
 import subprocess
 
 from .piaware_config_helpers import *
+from .flightfeeder_config_helpers import get_pending_network_config, set_pending_network_config
 from .wifi_helpers import get_wifi_networks, scan_wifi_networks, parse_wifi_networks
 
 API_VERSION = '2.0.0'
@@ -49,6 +50,43 @@ def handle_read_config_request(config_request):
 
     return json_response, status_code
 
+def handle_read_pending_network_config_request(config_request):
+    """ Read pending network configuration setting
+
+        Expected config_request format:
+        {
+            "request_payload" : ["wireless-network", "wireless-ssid]
+        }
+
+        request_payload must be a list of config settings to read
+    """
+    try:
+        read_settings = config_request['request_payload']
+        if type(read_settings) is not list:
+            raise TypeError
+
+        response = {}
+        for config in read_settings:
+            value = get_pending_network_config(config)
+            response[config] = value
+
+        response["success"] = True
+        json_response, status_code = response, HTTPStatus.OK
+    except KeyError:
+        json_response, status_code = {"success": False, "error": "Missing request_payload field"}, HTTPStatus.BAD_REQUEST
+    except TypeError:
+        json_response, status_code = {"success": False, "error": "Request_payload must be a list of settings to read"}, HTTPStatus.BAD_REQUEST
+    except PiAwareConfigPermissionException as e:
+        error = f"Reading {e.setting} is not allowed"
+        json_response, status_code = {"success": False, "error": error}, HTTPStatus.OK
+    except PiAwareConfigAsciiStringException as e:
+        error = f"Badly formatted setting"
+        json_response, status_code = {"success": False, "error": error}, HTTPStatus.OK
+    except PiAwareConfigException as e:
+        error = f"Server error occurred reading config setting: {e.setting}"
+        json_response, status_code = {"success": False, "error": error}, HTTPStatus.OK
+
+    return json_response, status_code
 
 def handle_write_config_request(config_request):
     """Set piaware-config setting
@@ -89,6 +127,43 @@ def handle_write_config_request(config_request):
 
     return json_response, status_code
 
+def handle_write_pending_network_config_request(config_request):
+    """ Set pending network configuration settings.
+
+        Expected config_request format:
+        {
+            "request_payload" : {"wireless-ssid": "MyWifiNetwork", "wireless-address": "192.168.0.111"}
+        }
+
+        request_payload must be a dictionary of key/value configuration setting pairs
+    """
+    try:
+        write_settings = config_request['request_payload']
+        if type(write_settings) is not dict:
+            raise TypeError
+
+        updated_settings = {}
+        for config, value in write_settings.items():
+            set_pending_network_config(config, value)
+            updated_settings[config] = value
+
+        json_response, status_code = updated_settings, HTTPStatus.OK
+        json_response["success"] = True
+    except KeyError:
+        json_response, status_code = {"success": False, "error": "Missing request_payload field"}, HTTPStatus.BAD_REQUEST
+    except TypeError:
+        json_response, status_code = {"success": False, "error": "request_payload must be a dict"}, HTTPStatus.BAD_REQUEST
+    except PiAwareConfigPermissionException as e:
+        error = f"Setting {e.setting} is not allowed"
+        json_response, status_code = {"success": False, "error": error}, HTTPStatus.OK
+    except PiAwareConfigAsciiStringException as e:
+        error = f"Badly formatted setting"
+        json_response, status_code = {"success": False, "error": error}, HTTPStatus.OK
+    except PiAwareConfigException as e:
+        error = f"Server error occurred writing config setting: {e.setting}"
+        json_response, status_code = {"success": False, "error": error}, HTTPStatus.OK
+
+    return json_response, status_code
 
 def handle_get_device_info_request():
     """ Returns piaware-configurator API version
@@ -357,3 +432,34 @@ def handle_reboot_request():
         json_response, status_code = {"success": False, "error": "Server error occurred"}, HTTPStatus.OK
 
     return json_response, status_code
+
+def handle_save_pending_network_settings():
+    ''' Handler function to save the volatile config settings permanently
+
+        This function will write the pending settings to piaware config and remove
+        the volatile config file.
+    '''
+    # Read the flightfeeder volatile config settings
+    filename = "/run/flightfeeder-volatile-config.txt"
+    if not os.path.exists(filename):
+        # Return 404 if no pending settings exist
+        return {"success": False, "error": "No pending settings exist"}, 404
+
+    # Store the config settings in memory so we can save them permanently
+    config_dict = {}
+    with open(filename) as f:
+        for line in f:
+            fields = line.split()
+            config, value = fields[0], fields[1]
+            config_dict[config] = value
+
+    # Remove the flightfeeder-volatile-config.txt file first, otherwise
+    # any piaware-config setting will just update this file
+    cmd = ["sudo", "rm", filename]
+    subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    # Save settings permanently by writing them to piaware-config
+    for k,v in config_dict.items():
+        set_piaware_config(k, v)
+
+    return {"success": True}, 200

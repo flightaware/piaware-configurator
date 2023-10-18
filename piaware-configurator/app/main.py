@@ -3,6 +3,8 @@ from flask import Flask, request, jsonify, make_response, abort, send_file
 from flask_socketio import SocketIO
 from http import HTTPStatus
 import logging
+import os
+import subprocess
 
 import tohil
 from . import message_handlers
@@ -27,7 +29,8 @@ def before_first_request_func():
     tohil.eval('package require fa_sudo')
     tohil.eval('package require fa_sysinfo')
     tohil.eval('::fa_piaware_config::new_combined_config piawareConfig')
-
+    tohil.eval('catch {::fa_flightfeeder_config::flightfeeder_combined_config flightfeederConfig}')
+    tohil.eval('catch {::fa_flightfeeder_config::flightfeeder_volatile_network_config flightfeederNetworkConfig}')
 
 @app.errorhandler(404)
 def not_found_error(error):
@@ -46,6 +49,36 @@ def configurator():
     response = process_json(json_payload)
 
     return response
+
+@app.route('/configurator/pending-network-settings', methods=["GET", "POST"])
+def pending_network_settings():
+    """ Endpoint to get and set pending network settings. Currently supported on FlightFeeders.
+
+        These settings are volatile and will be deleted on reboot.
+    """
+    filename = "/run/flightfeeder-volatile-config.txt"
+
+    if request.method == "GET":
+        if os.path.exists(filename):
+            json_payload = validate_json(request)
+            json_response, status_code = message_handlers.handle_read_pending_network_config_request(json_payload)
+        else:
+            json_response = {"success": False, "error": "No pending settings exist"}
+            status_code = 404
+
+    elif request.method == "POST":
+        # If volatile config file doesn't exist, create it
+        if not os.path.exists(filename):
+            cmd = ["sudo", "touch", filename]
+            subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        # Validate JSON format
+        json_payload = validate_json(request)
+
+        # Validate JSON content
+        json_response, status_code = message_handlers.handle_write_pending_network_config_request(json_payload)
+
+    return make_response(jsonify(json_response), status_code)
 
 @app.route('/system/status', methods=["GET"])
 def system_status():
@@ -246,6 +279,8 @@ def process_json(json_payload):
         json_response, status_code = message_handlers.handle_restart_network_request()
     elif request == 'reboot':
         json_response, status_code = message_handlers.handle_reboot_request()
+    elif request == 'save_pending_network_settings':
+        json_response, status_code = message_handlers.handle_save_pending_network_settings()
     else:
         app.logger.error(f'Unrecognized request: {request}')
         json_response, status_code = {"success": False, "error": "Unsupported request"}, HTTPStatus.BAD_REQUEST
