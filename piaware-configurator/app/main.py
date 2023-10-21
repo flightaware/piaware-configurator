@@ -255,6 +255,8 @@ def process_json(json_payload):
         json_response, status_code = message_handlers.handle_write_pending_network_config_request(json_payload)
     elif request == 'save_pending_network_settings':
         json_response, status_code = message_handlers.handle_save_pending_network_settings()
+    elif request == 'delete_pending_network_settings':
+        json_response, status_code = message_handlers.handle_delete_pending_network_settings()
     else:
         app.logger.error(f'Unrecognized request: {request}')
         json_response, status_code = {"success": False, "error": "Unsupported request"}, HTTPStatus.BAD_REQUEST

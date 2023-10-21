@@ -478,3 +478,19 @@ def handle_save_pending_network_settings():
         set_piaware_config(k, v)
 
     return {"success": True}, 200
+
+def handle_delete_pending_network_settings():
+    ''' Handler function to delete the volatile config settings permanently
+
+    '''
+    # Read the flightfeeder volatile config settings
+    filename = "/run/flightfeeder-volatile-config.txt"
+    if not os.path.exists(filename):
+        # Return 404 if no pending settings exist
+        return {"success": False, "error": "No pending settings exist"}, 404
+
+    # Remove the flightfeeder-volatile-config.txt file
+    cmd = ["sudo", "rm", filename]
+    subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    return {"success": True}, 200
