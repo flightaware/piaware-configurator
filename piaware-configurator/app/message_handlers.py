@@ -463,9 +463,17 @@ def handle_save_pending_network_settings():
     config_dict = {}
     with open(filename) as f:
         for line in f:
-            fields = line.split()
-            config = fields[0]
-            value = fields[1] if fields[1] != "#" else ""
+            # Discard any comments
+            fields = line.split('#')
+            config_value_pair = fields[0]
+
+            parts = config_value_pair.strip().split()
+            config = parts[0]
+            if len(parts) >= 2:
+                value = ' '.join(parts[1:])
+                value = value.strip('"')
+            else:
+                value = ""
             config_dict[config] = value
 
     # Remove the flightfeeder-volatile-config.txt file first, otherwise
