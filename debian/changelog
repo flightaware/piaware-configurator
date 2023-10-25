@@ -1,6 +1,7 @@
 piaware-configurator (9.0~dev) UNRELEASED; urgency=medium
 
-  * In development
+  * Add endpoints to reboot the device, restart the network, and read status, device, and network information.
+  * Add a web socket endpoint to stream piaware logs.
 
  -- Eric Tran <eric.tran@flightaware.com>  Thu, 15 Jun 2023 03:00:50 +0000
 
