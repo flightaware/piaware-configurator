@@ -17,7 +17,7 @@ node(label: 'raspberrypi') {
     ]
 
     // The list of packages to test-install, in the correct order to install.
-    def test_package_list = ["piaware-wifi-scan", "piawware-configurator"]
+    def test_package_list = ["piaware-wifi-scan", "piaware-configurator"]
 
     // --- implementation ---
 
