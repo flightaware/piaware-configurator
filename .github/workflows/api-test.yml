@@ -2,12 +2,12 @@ name: Run Piaware API Tests
 
 on:
   push:
-    #branches: [ "main" ]
+    branches: [ "main" ]
   pull_request:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
     - name: Checkout repo

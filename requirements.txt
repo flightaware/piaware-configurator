@@ -4,3 +4,4 @@ gunicorn
 flask_socketio
 eventlet==0.30.2
 requests
+pytest
