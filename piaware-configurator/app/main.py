@@ -1,10 +1,9 @@
 from datetime import datetime
 from flask import Flask, request, jsonify, make_response, abort, send_file
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, join_room, leave_room
 from http import HTTPStatus
 import logging
-import os
-import subprocess
+from threading import Lock
 
 import tohil
 from . import message_handlers
@@ -18,6 +17,8 @@ app.url_map.strict_slashes = False
 socketio = SocketIO(app, cors_allowed_origins="*")
 log_thread=None
 stop_thread = False
+client_states = {}
+state_lock = Lock()
 
 @app.before_first_request
 def before_first_request_func():
@@ -104,39 +105,42 @@ def handle_connect():
     ''' Socketio connect event
 
     '''
-    app.logger.info(f'Accepted client connection')
+    join_room(request.sid)
 
-    # Start a thread that will stream piaware.log
-    global log_thread
-    global stop_thread
-    stop_thread = False
-    if log_thread is None:
-        log_thread = socketio.start_background_task(stream_piaware_log_file)
+    with state_lock:
+        if request.sid not in client_states:
+            client_states[request.sid] = {'log_thread': None, 'stop_thread': False}
+
+        if client_states[request.sid]['log_thread'] is None:
+            # Create a thread for that client
+            client_states[request.sid]['log_thread'] = socketio.start_background_task(stream_piaware_log_file, request.sid)
+            app.logger.info(f'Accepted client connection')
 
 @socketio.on('disconnect')
 def handle_disconnect():
     ''' Socketio disconnect event
 
     '''
-    global stop_thread
-    global log_thread
-    log_thread = None
-    stop_thread = True
+    with state_lock:
+        if request.sid in client_states:
+            client_states[request.sid]['log_thread'] = None
+            client_states[request.sid]['stop_thread'] = True
+            del client_states[request.sid]
+
+    leave_room(request.sid)
     app.logger.info(f'Client disconnected')
 
-def stream_piaware_log_file():
+def stream_piaware_log_file(client_sid):
     ''' Streams piaware.log by periodically reading the file and emitting the data via a web socket.
         This will periodically seek to EOF to determine if there are new lines to be read.
 
     '''
     app.logger.debug("Spawned thread to follow piaware logs")
-    global stop_thread
     curr_pos = 0
     try:
         while True:
-            if stop_thread:
+            if client_sid in client_states and client_states[client_sid]['stop_thread']:
                 break
-
             # Open file for reading
             with open('/var/log/piaware.log', 'rb') as f:
                 # Seek EOF position
@@ -160,7 +164,7 @@ def stream_piaware_log_file():
                 if end_pos > curr_pos:
                     f.seek(curr_pos)
                     for line in f:
-                        socketio.emit('log_data', line.decode('utf-8', errors="replace"))
+                        socketio.emit('log_data', line.decode('utf-8', errors="replace"), room=client_sid)
                         socketio.sleep(0)
                     curr_pos = f.tell()
 
@@ -168,7 +172,7 @@ def stream_piaware_log_file():
             socketio.sleep(3)
     except:
         app.logger.error("Error reading piaware.log")
-        socketio.emit('log_data', "Error reading piaware.log...")
+        socketio.emit('log_data', "Error reading piaware.log...", room=client_sid)
 
 
 def validate_json(request):
