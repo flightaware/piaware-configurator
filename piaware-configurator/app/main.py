@@ -1,5 +1,6 @@
 from datetime import datetime
 from flask import Flask, request, jsonify, make_response, abort, send_file
+from flask_cors import CORS
 from flask_socketio import SocketIO, join_room, leave_room
 from http import HTTPStatus
 import logging
@@ -12,6 +13,7 @@ from . import wifi_helpers
 APP_NAME = 'piaware-configurator'
 
 app = Flask(__name__)
+CORS(app)
 app.url_map.strict_slashes = False
 
 socketio = SocketIO(app, cors_allowed_origins="*")
