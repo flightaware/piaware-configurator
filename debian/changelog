@@ -1,13 +1,12 @@
-piaware-configurator (9.1~dev) UNRELEASED; urgency=medium
+piaware-configurator (9.1) UNRELEASED; urgency=medium
 
   * Support multiple clients when streaming piaware logs from web socket endpoint
   * Enable CORS to allow FlightFeeder Web UI to reconnect on IP address change
 
- -- Eric Tran <eric.tran@flightaware.com>  Mon, 04 Mar 2024 16:12:00 -0600
+ -- Eric Tran <eric.tran@flightaware.com>  Fri, 08 Mar 2024 12:53:00 -0600
 
 piaware-configurator (9.0) stable; urgency=medium
 
-  [ Eric Tran ]
   * Add endpoints to reboot the device, restart the network, and read status, device, and network information.
   * Add a web socket endpoint to stream piaware logs.
 
