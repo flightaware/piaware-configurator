@@ -8,7 +8,7 @@ node(label: 'raspberrypi') {
 
     // The distributions we build on
     def build_dist_list = [
-      "bullseye"
+      "bookworm", "bullseye"
     ]
 
     // The distribution/architecture combinations we test-install on.
