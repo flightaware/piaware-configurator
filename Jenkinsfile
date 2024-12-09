@@ -13,7 +13,7 @@ node(label: 'raspberrypi') {
 
     // The distribution/architecture combinations we test-install on.
     def test_dist_arch_list = [
-      ["bullseye", "armhf"]
+      ["bookworm", "armhf"], ["bullseye", "armhf"]
     ]
 
     // The list of packages to test-install, in the correct order to install.
