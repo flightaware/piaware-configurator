@@ -44,11 +44,6 @@ case "$DIST" in
         ;;
 
     bookworm)
-        # Bookworm full sdcard image support isn't ready yet, but we still
-        # consider older distributions to be "backports" for the sake of
-        # consistent version numbers
-        echo "Bookworm support isn't done yet!" >&2
-        exit 1
         ;;
 
     *)

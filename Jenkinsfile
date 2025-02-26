@@ -8,12 +8,12 @@ node(label: 'raspberrypi') {
 
     // The distributions we build on
     def build_dist_list = [
-      "bullseye"
+      "bookworm", "bullseye"
     ]
 
     // The distribution/architecture combinations we test-install on.
     def test_dist_arch_list = [
-      ["bullseye", "armhf"]
+      ["bookworm", "armhf"], ["bullseye", "armhf"]
     ]
 
     // The list of packages to test-install, in the correct order to install.
