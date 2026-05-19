@@ -44,6 +44,11 @@ case "$DIST" in
         ;;
 
     bookworm)
+        echo "Updating changelog for bookworm backport build" >&2
+        dch --changelog $OUT/debian/changelog --local ~bpo12+ --force-distribution --distribution bookworm-backports "Automated backport build for bookworm"
+        ;;
+
+    trixie)
         ;;
 
     *)

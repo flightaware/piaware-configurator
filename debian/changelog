@@ -1,4 +1,10 @@
-piaware-configurator (10.2~dev) UNRELEASED; urgency=medium
+piaware-configurator (11.0~dev) UNRELEASED; urgency=medium
+
+  * In development
+
+ -- Ziquan Wang <ziquan.wang@flightaware.com>  Wed, 22 Apr 2026 09:35:17 -0500
+
+piaware-configurator (10.2) stable; urgency=medium
 
   * No change release for 10.2
 
