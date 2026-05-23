@@ -22,18 +22,7 @@ stop_thread = False
 client_states = {}
 state_lock = Lock()
 
-@app.before_first_request
-def before_first_request_func():
-    """ Initialization of Tcl package dependencies and logger
 
-    """
-    tohil.eval('package require fa_piaware_config')
-    tohil.eval('catch {package require fa_flightfeeder_config}')
-    tohil.eval('package require fa_sudo')
-    tohil.eval('package require fa_sysinfo')
-    tohil.eval('::fa_piaware_config::new_combined_config piawareConfig')
-    tohil.eval('catch {::fa_flightfeeder_config::flightfeeder_combined_config flightfeederConfig}')
-    tohil.eval('catch {::fa_flightfeeder_config::flightfeeder_volatile_network_config flightfeederNetworkConfig}')
 
 @app.errorhandler(404)
 def not_found_error(error):
@@ -281,19 +270,33 @@ class ContextFilter(logging.Filter):
         return True
 
 
-def setup_production_logger():
-    """ Set up logger properly when deployed behind Gunicorn WSGI server
+def setup():
+    """ Set up piawareConfig interface and gunicorn logger properly when deployed behind Gunicorn WSGI server
 
     """
+    tohil.eval('package require fa_piaware_config')
+    tohil.eval('catch {package require fa_flightfeeder_config}')
+    tohil.eval('package require fa_sudo')
+    tohil.eval('package require fa_sysinfo')
+    tohil.eval('::fa_piaware_config::new_combined_config piawareConfig')
+    tohil.eval('catch {::fa_flightfeeder_config::flightfeeder_combined_config flightfeederConfig}')
+    tohil.eval('catch {::fa_flightfeeder_config::flightfeeder_volatile_network_config flightfeederNetworkConfig}')
+
     # Get Gunicorn logger
     gunicorn_logger = logging.getLogger('gunicorn.error')
 
-    # Use Gunicorn logger handlers and log level
-    app.logger.handlers = gunicorn_logger.handlers
-    app.logger.setLevel(gunicorn_logger.level)
+    if gunicorn_logger.handlers:
+        # Use Gunicorn logger handlers and log level
+        app.logger.handlers = gunicorn_logger.handlers
+        app.logger.setLevel(gunicorn_logger.level)
 
     # Modify log message format to include app name
     formatter = logging.Formatter('%(asctime)s - %(APP_NAME)s - [%(levelname)s] - %(message)s')
     filter = ContextFilter()
-    app.logger.handlers[0].setFormatter(formatter)
-    app.logger.handlers[0].addFilter(filter)
+    if not app.logger.handlers:
+        handler = logging.StreamHandler()
+        app.logger.addHandler(handler)
+
+    for handler in app.logger.handlers:
+        app.logger.handlers[0].setFormatter(formatter)
+        app.logger.handlers[0].addFilter(filter)
