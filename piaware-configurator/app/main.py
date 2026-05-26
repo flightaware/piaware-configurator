@@ -292,11 +292,11 @@ def setup():
 
     # Modify log message format to include app name
     formatter = logging.Formatter('%(asctime)s - %(APP_NAME)s - [%(levelname)s] - %(message)s')
-    filter = ContextFilter()
+    context_filter = ContextFilter()
     if not app.logger.handlers:
         handler = logging.StreamHandler()
         app.logger.addHandler(handler)
 
     for handler in app.logger.handlers:
-        app.logger.handlers[0].setFormatter(formatter)
-        app.logger.handlers[0].addFilter(filter)
+        handler.setFormatter(formatter)
+        handler.addFilter(context_filter)
