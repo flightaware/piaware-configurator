@@ -2,12 +2,26 @@ from flask import current_app
 import subprocess
 import re
 import tohil
+import ast
 
 cell_regex = re.compile(r"^Cell ([\d.]+)")
 ssid_regex = re.compile(r"^ESSID:\"(.*)\"$")
 frequency_regex = re.compile(r"^Frequency:([\d.]+)")
 encrypted_regex = re.compile(r"^Encryption key:(.*)$")
 signal_regex = re.compile(r"^Quality=(\d+)\/(\d+)\s+Signal level=(.+) d.+$")
+
+
+def decode_unicode_escapes(text):
+    """Decode unicode escape sequences like \\xE2\\x80\\x99 back to characters.
+    
+    Uses ast.literal_eval for safe parsing of escape sequences, then
+    decodes UTF-8 byte sequences to proper unicode characters.
+    """
+    try:
+        decoded = ast.literal_eval(f'b"{text}"')
+        return decoded.decode('utf-8')
+    except (ValueError, SyntaxError, UnicodeDecodeError):
+        return text
 
 
 def scan_wifi_networks(interface='wlan0'):
@@ -51,6 +65,7 @@ def parse_wifi_networks(data):
         ssid_match = ssid_regex.search(line)
         if ssid_match:
             wireless_ssid = ssid_match.group(1)
+            wireless_ssid = decode_unicode_escapes(wireless_ssid)
             network_array[-1].update({'wireless-ssid': wireless_ssid})
             continue
 
