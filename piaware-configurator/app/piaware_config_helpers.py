@@ -1,6 +1,32 @@
 from flask import current_app
 import tohil
+import re
 from .common import *
+
+def encode_unicode_escapes(text):
+    """Encode non-ASCII characters to Unicode escape sequences for ASCII-safe storage.
+    
+    Converts characters like ' (U+2019) to \u2019 for storage in ASCII config files.
+    """
+    result = []
+    for char in text:
+        if ord(char) > 127:
+            result.append(r'\u{:04x}'.format(ord(char)))
+        else:
+            result.append(char)
+    return ''.join(result)
+
+
+def decode_unicode_escapes(text):
+    """Decode unicode escape sequences like \u2019 back to characters."""
+    try:
+        def replace_escape(match):
+            return chr(int(match.group(1), 16))
+        decoded = re.sub(r'\\u([0-9a-fA-F]{4})', replace_escape, text)
+        return decoded
+    except (ValueError, SyntaxError):
+        return text
+
 
 def get_piaware_config(setting):
     """ Getter function for piaware-config settings
@@ -15,6 +41,8 @@ def get_piaware_config(setting):
     try:
         tohil.eval('piawareConfig read_config')
         value = str(tohil.call('piawareConfig', 'get', setting))
+        # Decode any escaped unicode sequences back to actual characters
+        value = decode_unicode_escapes(value)
     except Exception:
         current_app.logger.error(f'Error reading {setting}. Make sure {setting} is a valid piaware-config option.')
         raise PiAwareConfigException(setting)
@@ -31,6 +59,12 @@ def set_piaware_config(setting, value):
 
     if setting not in piaware_config_write_whitelist:
         raise PiAwareConfigPermissionException(setting)
+
+    # Encode non-ASCII characters to Unicode escape sequences for ASCII-safe storage
+    # This preserves the original characters for WiFi connection while keeping the config file ASCII-safe
+    value = str(value)
+    if not value.isascii():
+        value = encode_unicode_escapes(value)
 
     try:
         tohil.eval('piawareConfig read_config')
